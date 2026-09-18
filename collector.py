@@ -75,7 +75,7 @@ def fmt_amount(value):
 
 def analyze_with_gemini(stocks_with_news):
     """수집한 뉴스 요약을 Gemini로 보내 상한가 원인과 분류를 분석한다."""
-    api_key = os.getenv('GEMINI_API_KEY')
+    api_key = os.getenv('GEMINI_API_KEY', '').strip()
     if not api_key:
         return {}, 'GEMINI_API_KEY가 설정되지 않았습니다.'
 
@@ -120,6 +120,8 @@ reason은 1~2문장, classification은 짧은 분류명으로 작성하세요.
         json=payload,
         timeout=90
     )
+    if not response.ok:
+        print(f'Gemini API error {response.status_code}: {response.text[:2000]}')
     response.raise_for_status()
     result = response.json()
     text = result['candidates'][0]['content']['parts'][0]['text'].strip()
@@ -188,3 +190,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
